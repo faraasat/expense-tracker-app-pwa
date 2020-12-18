@@ -1,9 +1,13 @@
+import { useContext, useEffect, useRef, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { TextField } from "@material-ui/core";
 import "./App.css";
+import { ExpenseContext } from "./Data/expense.context";
+import { TransactionType } from "./Types/expense-types";
 import {
   BasicCardComponent,
   BasicCards,
-  BasicCardSymbol,
   BasicCardText,
 } from "./Components/Cards/card.component";
 import {
@@ -28,9 +32,76 @@ import {
   BalancedWrapper,
   MainHeading,
 } from "./Components/Typography/typo.component";
+import { BasicCardSymbolStyles } from "./Components/Cards/card.styles";
 
 function App() {
-  const transactions = [{ text: "asd", amount: 3, id: "asdas" }];
+  const {
+    insertBasicTransaction,
+    transactions,
+    deleteBasicTransaction,
+  } = useContext(ExpenseContext);
+  const [text, setText] = useState("");
+  const [amount, setAmount] = useState("");
+  const ref: React.RefObject<HTMLFormElement> = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {}, [transactions]);
+
+  const toastProps = {
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+  };
+
+  const handleAddition = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (text === "") {
+      toast("🤔 Do not leave text empty!!", {
+        ...toastProps,
+        position: "top-right",
+      });
+      toast.clearWaitingQueue();
+      return;
+    } else if (text.length < 3) {
+      toast("🤔 Text must be of 3 or more characters!!", {
+        ...toastProps,
+        position: "top-right",
+      });
+      toast.clearWaitingQueue();
+      return;
+    } else if (Number(amount) === 0) {
+      toast("🤔 Amount should not be equal to zero!!", {
+        ...toastProps,
+        position: "top-right",
+      });
+      toast.clearWaitingQueue();
+      return;
+    }
+    insertBasicTransaction(text, Number(amount));
+    ref.current?.reset();
+    setText("");
+    setAmount("");
+  };
+
+  const getIncome = (): number => {
+    let income = 0;
+    for (let i = 0; i < transactions?.basic?.length; i++) {
+      if (transactions?.basic[i]?.amount > 0)
+        income += Number.parseFloat(transactions?.basic[i]?.amount);
+    }
+    return income;
+  };
+
+  const getExpense = (): number => {
+    let expense = 0;
+    for (let i = 0; i < transactions?.basic?.length; i++) {
+      if (transactions?.basic[i]?.amount < 0)
+        expense += Number.parseFloat(transactions?.basic[i]?.amount);
+    }
+    return expense;
+  };
 
   return (
     <BodyContainer>
@@ -40,7 +111,7 @@ function App() {
             <MainHeading>Expense Tracker App</MainHeading>
             <BalancedWrapper>
               <BalancedText>Your Balance</BalancedText>
-              <BalancedText>$ 0</BalancedText>
+              <BalancedText>$ {getIncome() - getExpense()}</BalancedText>
             </BalancedWrapper>
             <div>
               <PaperAlignment>
@@ -53,7 +124,7 @@ function App() {
                     textshadow="1px 1px rgba(47, 0, 255, 0.555) !important"
                   >
                     <div>INCOME</div>
-                    <div>$ 0</div>
+                    <div>$ {getIncome()}</div>
                   </PaperComponent>
                 </ButtonBaseAlignment>
                 <ButtonBaseAlignment
@@ -66,7 +137,7 @@ function App() {
                     textshadow="1px 1px rgba(255, 0, 179, 0.493) !important"
                   >
                     <div>EXPENSE</div>
-                    <div>$ 0</div>
+                    <div>$ {getExpense()}</div>
                   </PaperComponent>
                 </ButtonBaseAlignment>
               </PaperAlignment>
@@ -75,7 +146,7 @@ function App() {
               <BalancedText>History 📃</BalancedText>
             </BalancedWrapper>
             <BasicCards>
-              {transactions?.map((transaction: any) => {
+              {transactions?.basic?.map((transaction: TransactionType) => {
                 if (
                   transaction.text === "" &&
                   transaction.amount === 0 &&
@@ -85,8 +156,8 @@ function App() {
                 }
                 return (
                   <BasicCardComponent
-                    key={String(transaction.id)}
-                    amount={transaction.amount}
+                    key={String(transaction?.id)}
+                    amount={transaction?.amount}
                   >
                     <BasicCardText amount={transaction.amount} ml="10px">
                       {transaction?.text}
@@ -98,12 +169,13 @@ function App() {
                     >
                       {transaction?.amount}
                     </BasicCardText>
-                    <BasicCardSymbol
+                    <BasicCardSymbolStyles
                       amount={transaction.amount}
-                      // onClick={() => deleteBasicTransaction(transaction.id)}
+                      as="span"
+                      onClick={() => deleteBasicTransaction(transaction.id)}
                     >
                       &times;
-                    </BasicCardSymbol>
+                    </BasicCardSymbolStyles>
                   </BasicCardComponent>
                 );
               })}
@@ -112,14 +184,14 @@ function App() {
               <BalancedText>Add New Transaction 👇</BalancedText>
             </BalancedWrapper>
             <form
-              // ref={ref}
-              // onSubmit={(e) => handleAddition(e)}
+              ref={ref}
+              onSubmit={(e) => handleAddition(e)}
               className="balance-form"
             >
               <BalancedField>
                 <BalancedFieldText>Transaction Text</BalancedFieldText>
                 <TextField
-                  // onChange={(e) => setText(e.target.value)}
+                  onChange={(e) => setText(e.target.value)}
                   label="Enter Transaction Text"
                   variant="filled"
                   className="balance-text-field__input"
@@ -134,7 +206,7 @@ function App() {
                 </BalancedFieldText>
                 <TextField
                   type="number"
-                  // onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => setAmount(e.target.value)}
                   label="Enter Amount"
                   variant="filled"
                   className="balance-text-field__input balance-text-field__input-2"
@@ -147,6 +219,7 @@ function App() {
           </SmallGrid>
         </SmallContainer>
       </GridContainer>
+      <ToastContainer />
     </BodyContainer>
   );
 }

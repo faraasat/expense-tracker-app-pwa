@@ -1,4 +1,5 @@
-import { IChildNodes } from "../../Types/expense-types";
+import { Button } from "@material-ui/core";
+import { IChildNodes, IChildElementNodes } from "../../Types/expense-types";
 import {
   BalancedBtnWrapperStyles,
   BalancedFieldBtnInputStyles,
@@ -23,6 +24,12 @@ export const BalancedBtnWrapper: React.FC<IChildNodes> = ({ children }) => {
   return <BalancedBtnWrapperStyles>{children}</BalancedBtnWrapperStyles>;
 };
 
-export const BalancedFieldBtnInput: React.FC<IChildNodes> = ({ children }) => {
-  return <BalancedFieldBtnInputStyles>{children}</BalancedFieldBtnInputStyles>;
+export const BalancedFieldBtnInput: React.FC<IChildElementNodes> = ({
+  children,
+}) => {
+  return (
+    <BalancedFieldBtnInputStyles as={Button} type="submit">
+      {children}
+    </BalancedFieldBtnInputStyles>
+  );
 };
