@@ -5,6 +5,7 @@ import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 import { ExpenseContextProvider } from "./Data/expense.context";
+import { initNotifications } from "./Services/firebase.service";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -15,5 +16,8 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
-serviceWorkerRegistration.unregister();
+setTimeout(() => {
+  initNotifications();
+}, 5000);
+serviceWorkerRegistration.register();
 reportWebVitals();
