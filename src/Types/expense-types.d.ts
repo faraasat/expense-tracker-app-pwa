@@ -54,3 +54,8 @@ export type ReducerReturnType = {
     )[];
   };
 };
+
+export interface Loader {
+  showLoader: () => void | undefined;
+  hideLoader: () => void | undefined;
+}

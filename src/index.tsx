@@ -7,10 +7,14 @@ import reportWebVitals from "./reportWebVitals";
 import { ExpenseContextProvider } from "./Data/expense.context";
 import { initNotifications } from "./Services/firebase.service";
 
+const loader = document.querySelector(".loader");
+const showLoader = () => loader?.classList.remove("loader--hide");
+const hideLoader = () => loader?.classList.add("loader--hide");
+
 ReactDOM.render(
   <React.StrictMode>
     <ExpenseContextProvider>
-      <App />
+      <App hideLoader={hideLoader} showLoader={showLoader} />
     </ExpenseContextProvider>
   </React.StrictMode>,
   document.getElementById("root")

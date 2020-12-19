@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { TextField } from "@material-ui/core";
 import "./App.css";
 import { ExpenseContext } from "./Data/expense.context";
-import { TransactionType } from "./Types/expense-types";
+import { Loader, TransactionType } from "./Types/expense-types";
 import {
   BasicCardComponent,
   BasicCards,
@@ -34,7 +34,7 @@ import {
 } from "./Components/Typography/typo.component";
 import { BasicCardSymbolStyles } from "./Components/Cards/card.styles";
 
-function App() {
+const App: React.FC<Loader> = ({ hideLoader, showLoader }) => {
   const {
     insertBasicTransaction,
     transactions,
@@ -44,7 +44,9 @@ function App() {
   const [amount, setAmount] = useState("");
   const ref: React.RefObject<HTMLFormElement> = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {}, [transactions]);
+  useEffect(() => {
+    hideLoader();
+  }, [transactions, hideLoader]);
 
   const toastProps = {
     autoClose: 5000,
@@ -222,6 +224,6 @@ function App() {
       <ToastContainer />
     </BodyContainer>
   );
-}
+};
 
 export default App;
